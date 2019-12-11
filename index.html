@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Reducio</title>
+</head>
+
+<body>
+    <div ondrop="drop_handler(event)" ondragleave="dragleave_handler(event)" ondragover="dragover_handler(event)"
+        class="main-container"></div>
+
+</body>
+
+
+<style>
+    :root {
+        --main-black: #202C39;
+        --main-blue: #4D9DE0;
+        --main-grey: rgb(41, 56, 73);
+        --main-green: lightgreen;
+        --main-red: red;
+    }
+
+    body {
+        margin: 0;
+    }
+
+    .main-container {
+        display: flex;
+        width: 100vw;
+        height: 100vh;
+        background-color: var(--main-black);
+        transition: .5s;
+    }
+</style>
+
+<script>
+    const ipcRenderer = require('electron').ipcRenderer
+
+
+
+    //When Cursor Is Within Window
+    function dragover_handler(event) {
+        event.preventDefault();
+        event.target.style.backgroundColor = "var(--main-grey)";
+        if (event.dataTransfer.items[0].type.includes('image/')) {
+            console.log('Its an image')
+        } else {
+            console.log('Not an image')
+        }
+        // console.log(event)
+    }
+
+    //When Cursor Leaves Window
+    function dragleave_handler(event) {
+        event.preventDefault();
+        console.log('Left')
+        event.target.style.backgroundColor = "var(--main-black)";
+    }
+
+    //When File Dropped Into Window
+    async function drop_handler(event) {
+        event.preventDefault();
+        event.target.style.backgroundColor = "var(--main-blue)";
+        console.log('dropped file')
+        console.log(event.dataTransfer.files[0])
+        const convertResult = await ipcRenderer.sendSync('filePath', {
+            name: event.dataTransfer.files[0].name,
+            path: event.dataTransfer.files[0].path,
+            other: event.dataTransfer.files[0]
+        })
+        if (convertResult) {
+            event.target.style.backgroundColor = "var(--main-green)";
+        } else {
+            event.target.style.backgroundColor = "var(--main-red)";
+
+        }
+
+
+
+    }
+</script>
+
+</html>
